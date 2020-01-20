@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss,SSS} %highlight{[%p]} (%t) %c: %m%n"/>
+            <Filters>
+                <ThresholdFilter level="ALL" onMatch="ACCEPT" />
+            </Filters>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="ALL">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <Logger name="amazon.platform.config.AppConfigTree" level="WARN"/>
+    </Loggers>
+</Configuration>
