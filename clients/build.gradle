@@ -11,18 +11,20 @@ sourceSets {
 
 dependencies {
     // Corda dependencies.
-    compile "$corda_release_group:corda-rpc:$corda_release_version"
+    compile "net.corda:corda-rpc:${property("version.corda")}"
 
     // CorDapp dependencies.
     compile project(":contracts")
     compile project(":workflows")
 
     // https://mvnrepository.com/artifact/com.beust/jcommander
-    compile group: 'com.beust', name: 'jcommander', version: jcommander_version
+    compile group: 'com.beust', name: 'jcommander', version: property("version.jcommander")
 
-    compile group : "org.apache.logging.log4j", name: "log4j-slf4j-impl", version: log4j_version
-    compile group : "org.apache.logging.log4j", name: "log4j-web", version: log4j_version
-    compile group: "org.slf4j", name: "jul-to-slf4j", version : slf4j_version
+    compile group : "org.apache.logging.log4j", name: "log4j-slf4j-impl", version: property("version.log4j")
+    compile group : "org.apache.logging.log4j", name: "log4j-web", version: property("version.log4j")
+    compile group: "org.slf4j", name: "jul-to-slf4j", version : property("version.slf4j")
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: property("version.junit")
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: property("version.junit")
 }
 
 //jar {
@@ -33,4 +35,15 @@ dependencies {
 
 application {
     mainClassName "net.corda.splitcorda.client.Client"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task suspendedFlow(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "net.corda.splitcorda.client.Client"
+    args += ['-H', 'localhost', '-P', '10006', '-u', 'admin', '-p', 'password']
+    args += ["suspendedFlow"]
 }

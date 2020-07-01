@@ -2,11 +2,12 @@ plugins {
     id 'net.corda.plugins.cordapp'
     id 'net.corda.plugins.quasar-utils'
     id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
 }
 
 cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
+    targetPlatformVersion = property("corda.platform.version").toInteger()
+    minimumPlatformVersion = property("corda.platform.version").toInteger()
     workflow {
         name "Splitcorda Flows"
         vendor "Corda Open Source"
@@ -41,15 +42,14 @@ configurations {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "junit:junit:$junit_version"
+    cordaCompile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: property("version.kotlin")
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: property("version.junit")
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: property("version.junit")
 
     // Corda dependencies.
-    cordaCompile "$corda_release_group:corda-core:$corda_release_version"
-    cordaRuntime "$corda_release_group:corda:$corda_release_version"
-
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
+    cordaCompile group: "net.corda", name: "corda-core", version: property("version.corda")
+    cordaRuntime group: "net.corda", name: "corda", version: property("version.corda")
+    testCompile group: "net.corda", name: "corda-node-driver", version: property("version.corda")
 
     // CorDapp dependencies.
     cordapp project(":contracts")
@@ -59,3 +59,15 @@ task integrationTest(type: Test, dependsOn: []) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = groupId
+            artifactId = 'splitcorda-workflows'
+            version = project.version
+            from components.java
+        }
+    }
+}
+

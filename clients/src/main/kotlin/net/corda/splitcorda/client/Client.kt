@@ -19,18 +19,18 @@ import net.corda.core.utilities.loggerFor
 import net.corda.splitcorda.contracts.BillEntry
 import net.corda.splitcorda.flows.ApproveFlowInitiator
 import net.corda.splitcorda.flows.ProposeFlowInitiator
-import java.lang.RuntimeException
+import net.corda.splitcorda.flows.SuspendedFlow
 import java.math.BigDecimal
 import java.util.concurrent.ExecutionException
 
 
 object Client {
 
-    internal class LinearIdConverter : IStringConverter<UniqueIdentifier> {
+    private class LinearIdConverter : IStringConverter<UniqueIdentifier> {
         override fun convert(value: String): UniqueIdentifier = UniqueIdentifier.fromString(value)
     }
 
-    internal data class CliArgs(
+    private data class CliArgs(
         @Parameter
         var parameters: List<String> = ArrayList(),
 
@@ -51,22 +51,22 @@ object Client {
     )
 
     @Parameters(commandDescription = "List known network parties")
-    internal class ListParties
+    private class ListParties
 
     @Parameters(commandDescription = "List known network parties")
-    internal data class ApproveEntries(
+    private data class ApproveEntries(
         @Parameter(names = arrayOf("-u", "--uuid"), required = true, converter = LinearIdConverter::class)
         var entries : List<UniqueIdentifier> = ArrayList()
     )
 
     @Parameters(commandDescription = "List bill entries")
-    internal data class ListEntries(
+    private data class ListEntries(
         @Parameter(names = arrayOf("-s", "--state"))
         var state: BillEntry.State = BillEntry.State.Proposed
     )
 
     @Parameters(commandDescription = "Create new BillEntry")
-    internal data class CreateEntry(
+    private data class CreateEntry(
         @Parameter(names = arrayOf("-a", "--amount"))
         var amount: BigDecimal = BigDecimal(0.0),
 
@@ -81,10 +81,13 @@ object Client {
     )
 
     @Parameters(commandDescription = "Split existing bill entries BillEntry")
-    internal data class SplitEntries(
+    private data class SplitEntries(
         @Parameter(names = arrayOf("-u", "--uuid"), required = true, converter = LinearIdConverter::class)
         var entries: List<UniqueIdentifier> = ArrayList()
     )
+
+    @Parameters(commandDescription = "Starts SuspendedFlow")
+    private class RunSuspendedFlow
 
     val logger = loggerFor<Client>()
 
@@ -96,6 +99,7 @@ object Client {
         val createEntry = CreateEntry()
         val splitEntries = SplitEntries()
         val listParties = ListParties()
+        val suspendedFlow = RunSuspendedFlow()
         val jc = JCommander.newBuilder()
             .addObject(cliArgs)
             .addCommand("listParties", listParties)
@@ -103,6 +107,7 @@ object Client {
             .addCommand("createEntry", createEntry)
             .addCommand("splitEntries", splitEntries)
             .addCommand("approveEntries", approveEntries)
+            .addCommand("suspendedFlow", suspendedFlow)
             .build()
         jc.parse(*argv)
         if (cliArgs.help) {
@@ -153,14 +158,6 @@ object Client {
                     createEntry.beneficiaries.asSequence().map(::partyFromName).toSet(),
                     partyFromName(createEntry.paidBy)
                 )
-//                val flowHandle = proxy.startFlow {
-//                    ProposeFlowInitiator(
-//                        description = createEntry.description,
-//                        amount = createEntry.amount,
-//                        paidBy = partyFromName(createEntry.paidBy),
-//                        beneficiaries = createEntry.beneficiaries.asSequence().map(::partyFromName).toSet()
-//                    )
-//                }
                 try {
                     println(flowHandle.returnValue.get())
                 } catch (e: ExecutionException) {
@@ -182,6 +179,10 @@ object Client {
                 } catch (e: ExecutionException) {
                     throw e.cause ?: e
                 }
+            }
+            "suspendedFlow" -> {
+                val flowHandle = proxy.startFlow(::SuspendedFlow)
+                flowHandle.returnValue.cancel(true)
             }
             else -> {
                 throw NotImplementedError("This should never happen")

@@ -1,10 +1,11 @@
 plugins {
     id 'net.corda.plugins.cordapp'
+    id 'maven-publish'
 }
 
 cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
+    targetPlatformVersion = property("corda.platform.version").toInteger()
+    minimumPlatformVersion = property("corda.platform.version").toInteger()
     contract {
         name "Splitcorda Contract"
         vendor "Corda Open Source"
@@ -14,10 +15,22 @@ cordapp {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile group: "org.jetbrains.kotlin", name: "kotlin-stdlib-jdk8", version: property("version.kotlin")
 
     // Corda dependencies.
-    cordaCompile "$corda_release_group:corda-core:$corda_release_version"
+    cordaCompile group: "net.corda", name: "corda-core", version: property("version.corda")
 
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
+    testCompile group: "net.corda", name: "corda-node-driver", version: property("version.corda")
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = groupId
+            artifactId = 'splitcorda-contract'
+            version = project.version
+            from components.java
+        }
+    }
+}
+

@@ -31,30 +31,27 @@ sourceSets {
 }
 
 dependencies {
-    // Corda dependencies.
-//    compile "$corda_release_group:corda-rpc:$corda_release_version"
-
     // CorDapp dependencies.
 //    compile project(":contracts")
 //    compile project(":workflows")
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile group: "org.jetbrains.kotlin", name: "kotlin-stdlib-jdk8", version: property("version.kotlin")
 
-    compile group: 'io.undertow', name: 'undertow-servlet', version: undertow_version
-    compile group: 'org.jboss.resteasy', name: 'resteasy-undertow', version: '4.4.2.Final'
-    compile group: 'org.jboss.resteasy', name: 'resteasy-cdi', version: '4.4.2.Final'
-    compile group: 'org.jboss.weld.servlet', name: 'weld-servlet-core', version: '3.1.3.Final'
-    compile group: 'org.jboss.weld', name: 'weld-core-impl', version: '3.1.3.Final'
-    compile group: 'org.jboss.weld', name: 'weld-api', version: '3.1.SP2'
-//    compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '4.4.2.Final'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1'
+    compile group: 'io.undertow', name: 'undertow-servlet', version: property("version.undertow")
+    compile group: 'org.jboss.resteasy', name: 'resteasy-undertow', version: property("version.resteasy")
+    compile group: 'org.jboss.resteasy', name: 'resteasy-cdi', version: property("version.resteasy")
+    compile group: 'org.jboss.weld.servlet', name: 'weld-servlet-core', version: property("version.weld")
+    compile group: 'org.jboss.weld', name: 'weld-core-impl', version: property("version.weld")
+    compile group: 'org.jboss.weld', name: 'weld-api', version: property("version.weld.api")
+//    compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: property("version.resteasy")
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: property("version.jackson")
 
-    compile group: "net.corda", name: "corda-rpc", version: "4.3"
+    compile group: "net.corda", name: "corda-rpc", version: property("version.corda")
 
 
-    compile group : "org.apache.logging.log4j", name: "log4j-slf4j-impl", version: log4j_version
-    compile group : "org.apache.logging.log4j", name: "log4j-web", version: log4j_version
-    compile group: "org.slf4j", name: "jul-to-slf4j", version : slf4j_version
+    compile group : "org.apache.logging.log4j", name: "log4j-slf4j-impl", version: property("version.log4j")
+    compile group : "org.apache.logging.log4j", name: "log4j-web", version: property("version.log4j")
+    compile group: "org.slf4j", name: "jul-to-slf4j", version : property("version.slf4j")
 }
 
 //jar {
