@@ -91,6 +91,59 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapp project(':contracts')
         cordapp project(':workflows')
         rpcUsers = [[user: "admin", "password": "password", "permissions": ["ALL"]]]
+
+        extraConfig = ['custom.jvmArgs': ["-Xmx1G", "-XX:+UseG1GC"]]
+    }
+    node {
+        name "O=Notary,L=London,C=GB"
+        notary = [validating: false]
+        p2pPort 10002
+        h2Port 8083
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=Alice,L=London,C=GB"
+        p2pPort 10005
+        h2Port 8084
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+    }
+    node {
+        name "O=Bob,L=New York,C=US"
+        h2Port 8085
+        p2pPort 10008
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+    }
+    node {
+        name "O=Charlie,L=New York,C=US"
+        h2Port 8086
+        p2pPort 10011
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+    }
+}
+
+task prepareDockerNodes(type: net.corda.plugins.Dockerform, dependsOn: ['jar']) {
+    dockerImage = "corda/corda-zulu-4.6"
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        rpcUsers = [[user: "admin", "password": "password", "permissions": ["ALL"]]]
+
+        extraConfig = ['custom.jvmArgs': ["-Xmx1G", "-XX:+UseG1GC"]]
     }
     node {
         name "O=Notary,L=London,C=GB"
